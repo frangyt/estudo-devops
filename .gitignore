@@ -11,4 +11,8 @@
 ### Vagrant Patch ###
 *.box
 
+### Chave ssh ###
+id_rsa
+id_rsa.pub
+
 # End of https://www.toptal.com/developers/gitignore/api/vagrant
