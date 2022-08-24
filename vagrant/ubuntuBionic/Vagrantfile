@@ -15,12 +15,34 @@ $ansibleInstall = <<-SCRIPT
   echo "ansible concluido"
 SCRIPT
 
+$copiaKey = <<-SCRIPT
+  cat /vagrant/configs/id_rsa.pub >> .ssh/authorized_keys
+SCRIPT
+
+$installDocker = <<-SCRIPT
+  apt-get update && \
+  apt-get install -y docker.io
+SCRIPT
+
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/bionic64"
 
   config.vm.provider "virtualbox" do |vb|
     vb.memory = 512
     vb.cpus = 1
+  end
+
+  config.vm.define "dockerhost" do |dockerhost|
+    dockerhost.vm.network "public_network", ip: "192.168.1.28"
+
+    dockerhost.vm.provider "virtualbox" do |vb|
+      vb.name = "ubuntu_dockerhost"   
+    end
+
+    dockerhost.vm.provision "shell", inline: $copiaKey
+
+    dockerhost.vm.provision "shell",
+      inline: $installDocker
   end
 
   # config.vm.define "mysqldb" do |mysql| 
@@ -90,21 +112,6 @@ Vagrant.configure("2") do |config|
       vb.cpus = 1
       vb.name = "centos7_memcached"   
     end
-  end
-
-  config.vm.define "dockerhost" do |dockerhost|
-    dockerhost.vm.network "public_network", ip: "192.168.1.28"
-
-    dockerhost.vm.provider "virtualbox" do |vb|
-      vb.memory = 512
-      vb.cpus = 1
-      vb.name = "ubuntu_dockerhost"   
-    end
-
-    dockerhost.vm.provision "shell", inline: "cat /vagrant/configs/id_rsa.pub >> .ssh/authorized_keys"
-
-    dockerhost.vm.provision "shell",
-      inline: "apt-get update && apt-get install -y docker.io"
   end
 
 end
