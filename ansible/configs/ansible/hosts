@@ -1,7 +1,7 @@
-[mysqlserver]
+[wordpress]
 192.168.1.22
 
-[mysqlserver:vars]
+[wordpress:vars]
 ansible_user=vagrant
 ansible_ssh_private_key_file=/home/vagrant/id_rsa
 ansible_python_interpreter=/usr/bin/python3

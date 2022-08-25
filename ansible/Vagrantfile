@@ -1,12 +1,8 @@
 $ansibleInstall = <<-SCRIPT
   apt-get update && \
-  echo "update concluido"
   apt-get install -y software-properties-common && \
-  echo "install concluido"
-  apt-add-repository --yes --update ppa:ansible/ansible \
-  echo "repository concluido"
+  apt-add-repository --yes --update ppa:ansible/ansible &&\
   apt-get install -y ansible
-  echo "ansible concluido"
 SCRIPT
 
 $copiaKey = <<-SCRIPT
@@ -45,15 +41,16 @@ Vagrant.configure("2") do |config|
       inline: $installDocker
   end
 
-  config.vm.define "mysqlserver" do |mysqlserver|
-    mysqlserver.vm.network "public_network", ip: "192.168.1.22"
+  config.vm.define "wordpress" do |wordpress|
+    wordpress.vm.network "public_network", ip: "192.168.1.22"
 
-    mysqlserver.vm.provision "shell", inline: "cat /vagrant/configs/id_rsa.pub >> .ssh/authorized_keys"
+    wordpress.vm.provision "shell", inline: "cat /vagrant/configs/id_rsa.pub >> .ssh/authorized_keys"
   end
 
   config.vm.define "ansible" do |ansible|
     ansible.vm.network "public_network", ip: "192.168.1.26"
 
+    ansible.vm.provision "shell", inline: $copiaKey
     ansible.vm.provision "shell", inline: $ansibleKey
 
     ansible.vm.provision "shell", 
@@ -61,6 +58,6 @@ Vagrant.configure("2") do |config|
 
     ansible.vm.provision "shell", 
       inline: "ansible-playbook -i /vagrant/configs/ansible/hosts\
-               /vagrant/configs/ansible/playbook.yml"
+               /vagrant/configs/ansible/provisioning.yml"
   end
 end
