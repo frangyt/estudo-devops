@@ -19,4 +19,21 @@ resource "aws_instance" "dev" {
   tags = {
     Name = "dev${count.index}"
   }
+  vpc_security_group_ids = [ "sg-02a36b4677a378fa0" ]
+}
+
+resource "aws_security_group" "acesso-ssh" {
+  name        = "acesso-ssh"
+  description = "Permite conexao ssh"
+
+  ingress {
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = ["177.104.12.210/32"]    
+  }
+
+  tags = {
+    Name = "allow_ssh"
+  }
 }
