@@ -15,7 +15,12 @@
 id_rsa
 id_rsa.pub
 
-### Packer ### 
-packer.exe
+### Executaveis ### 
+*.exe
+
+### Terraform ###
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
 
 # End of https://www.toptal.com/developers/gitignore/api/vagrant
