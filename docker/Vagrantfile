@@ -73,9 +73,6 @@ Vagrant.configure("2") do |config|
 
     dockerhost.vm.provision "shell",
       inline: $installDocker
-
-    dockerhost.vm.provision "shell",
-      inline: $tiraSudo
   end
 
   # config.vm.define "wordpress" do |wordpress|
