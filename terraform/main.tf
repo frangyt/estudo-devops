@@ -106,3 +106,16 @@ resource "aws_dynamodb_table" "dynamodb-homolog" {
     type = "S"
   }
 }
+
+resource "aws_s3_bucket" "homologacao" {
+  bucket = "fran-homologacao"
+
+  tags = {
+    Name = "fran-homologacao"
+  }
+}
+
+resource "aws_s3_bucket_acl" "homolog" {
+  bucket = aws_s3_bucket.homologacao
+  acl    = "private"
+}
