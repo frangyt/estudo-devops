@@ -1,0 +1,106 @@
+# $ansibleInstall = <<-SCRIPT
+#   apt-get update && \
+#   apt-get install -y software-properties-common && \
+#   apt-add-repository --yes --update ppa:ansible/ansible &&\
+#   apt-get install -y ansible
+# SCRIPT
+
+# $ansibleKey = <<-SCRIPT
+#   cp /vagrant/id_rsa /home/vagrant && \
+#   chmod 600 /home/vagrant/id_rsa && \
+#   chown vagrant:vagrant /home/vagrant/id_rsa
+# SCRIPT
+
+$copiaKey = <<-SCRIPT
+  cat /vagrant/configs/id_rsa.pub >> .ssh/authorized_keys
+SCRIPT
+
+$installDependencias = <<-SCRIPT
+  apt-get update && \
+  sudo apt-get install \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release -y
+SCRIPT
+
+$addGPG = <<-SCRIPT
+  sudo mkdir -p /etc/apt/keyrings &&
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+SCRIPT
+
+$setStable = <<-SCRIPT
+  echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+SCRIPT
+
+$installDocker = <<-SCRIPT
+  sudo apt-get update &&\
+  sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
+SCRIPT
+
+$tiraSudo = <<-SCRIPT
+  sudo usermod -aG docker $USER
+SCRIPT
+
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/bionic64"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = 512
+    vb.cpus = 1
+  end
+
+  config.vm.define "dockerhost" do |dockerhost|
+    dockerhost.vm.network "public_network", ip: "192.168.1.28"
+
+    dockerhost.vm.provider "virtualbox" do |vb|
+      vb.name = "ubuntu_dockerhost"   
+    end
+
+    dockerhost.vm.provision "shell", inline: $copiaKey
+
+    dockerhost.vm.provision "shell",
+      inline: $installDependencias
+    
+    dockerhost.vm.provision "shell",
+      inline: $addGPG
+
+    dockerhost.vm.provision "shell",
+      inline: $setStable
+
+    dockerhost.vm.provision "shell",
+      inline: $installDocker
+
+    dockerhost.vm.provision "shell",
+      inline: $tiraSudo
+  end
+
+  # config.vm.define "wordpress" do |wordpress|
+  #   wordpress.vm.network "public_network", ip: "192.168.1.22"
+
+  #   wordpress.vm.provision "shell", inline: "cat /vagrant/configs/id_rsa.pub >> .ssh/authorized_keys"    
+  # end
+
+  # config.vm.define "mysql" do |mysql|
+  #   mysql.vm.network "public_network", ip: "192.168.1.24"
+
+  #   mysql.vm.provision "shell", inline: "cat /vagrant/configs/id_rsa.pub >> .ssh/authorized_keys"
+  # end
+
+  # config.vm.define "ansible" do |ansible|
+  #   ansible.vm.network "public_network", ip: "192.168.1.26"
+
+  #   ansible.vm.provision "shell", inline: $copiaKey
+  #   ansible.vm.provision "shell", inline: $ansibleKey
+
+  #   ansible.vm.provision "shell", 
+  #     inline: $ansibleInstall
+
+  #   ansible.vm.provision "shell", 
+  #     inline: "ansible-playbook -i /vagrant/configs/hosts\
+  #              /vagrant/configs/provisioning.yml"
+  # end
+end
