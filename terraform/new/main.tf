@@ -18,8 +18,7 @@ resource "aws_instance" "app_server" {
   ami = "ami-017fecd1353bcc96e"
   instance_type = "t2.micro"
   key_name = "gether"
-
   tags = {
-    Name = "primeira instancia"
+    Name = "teste aws"
   }
 }
