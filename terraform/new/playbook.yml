@@ -6,10 +6,19 @@
       - python3
       - virtualenv
       update_cache: yes
-    become: yes
+    become: true
   - name: Instalando dependencias
     pip:
       virtualenv: /home/ubuntu/gether/venv
       name:
         - django
         - djangorestframework
+  - name: Iniciado o projeto
+    shell: '. /home/ubuntu/gether/venv/bin/activate; django-admin startproject setup /home/ubuntu/gether/'
+    ignore_errors: true
+  - name: Alterando o hosts do settings
+    lineinfile: 
+      path: /home/ubuntu/gether/setup/settings.py
+      regexp: 'ALLOWED_HOSTS'
+      line: 'ALLOWED_HOSTS = ["*"]'
+      backrefs: true
