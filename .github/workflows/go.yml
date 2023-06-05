@@ -42,14 +42,17 @@ jobs:
       
   build:
     needs: test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: ['ubuntu-latest','ubuntu-18.04']
+    runs-on: ubuntu-latest    
     steps:
     - uses: actions/checkout@v3
     - name: Build
       run: cd actions; go build -v main.go
+      
+    - name: build um artefato
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        name: programa go
+        path: main
       
   docker:
     needs: build
