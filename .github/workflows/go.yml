@@ -52,7 +52,7 @@ jobs:
       uses: actions/upload-artifact@v3.1.2
       with:
         name: programa go
-        path: main
+        path: actions/main
       
   docker:
     needs: build
